@@ -72,7 +72,7 @@ public class MetaLockAspect {
                 }
             }
             if (param != null) {
-                lockNames.add(metaLock.name() + "$|$" + param);
+                lockNames.add(metaLock.name() + ((char) 0) + param);
             }
         }
 
@@ -86,12 +86,12 @@ public class MetaLockAspect {
         }
 
         try {
-            log.debug("Before {} {}", current, methodName);
+            log.debug("{} Before {}", current, methodName);
             Object result = pjp.proceed();
-            log.debug("After {} {}", current, methodName);
+            log.debug("{} After {}", current, methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("Error {} {}", current, methodName);
+            log.debug("{} Error {}", current, methodName);
             throw e;
         } finally {
             if (!lockNames.isEmpty()) {
@@ -105,7 +105,7 @@ public class MetaLockAspect {
      */
     private void lock(List<String> sortedLockNames, int current) {
         for (String lockName : sortedLockNames) {
-            log.debug("Lock {} {}", current, lockName);
+            log.debug("{} Locking {}", unique, lockName);
             ReservedLock lock;
 
             synchronizer.lock();
@@ -117,19 +117,19 @@ public class MetaLockAspect {
             }
 
             lock.lock();
+            log.debug("{} Locked {}", unique, lockName);
         }
-        log.debug("Locked {}", current);
     }
 
     /**
      * Release sorted named locks in reverse order
      */
-    private void unlock(List<String> sortedLockNames, int current) {
+    private void unlock(List<String> sortedLockNames, int unique) {
         ListIterator<String> iter = sortedLockNames.listIterator(sortedLockNames.size());
 
         while (iter.hasPrevious()) {
             String lockName = iter.previous();
-            log.debug("Unlock {} {}", current, lockName);
+            log.debug("{} Unlocking {}", unique, lockName);
 
             ReservedLock lock;
 
@@ -139,14 +139,15 @@ public class MetaLockAspect {
                 lock.release();
                 if (lock.isFree()) {
                     namedLocks.remove(lockName);
+                    log.debug("{} Removed {}", unique, lockName);
                 }
             } finally {
                 synchronizer.unlock();
             }
 
             lock.unlock();
+            log.debug("{} Unlocked {}", unique, lockName);
         }
-        log.debug("Unlocked {}", current);
     }
 
     /**

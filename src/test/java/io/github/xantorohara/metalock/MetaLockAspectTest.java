@@ -95,5 +95,4 @@ public class MetaLockAspectTest {
         assertThat(demoRegistryService.getRecordsDummyStorage().get("SomeKey1"), equalTo("SomeValue"));
         assertThat(demoRegistryService.getRecordsDummyStorage().get("SomeKey2"), equalTo("SomeValue"));
     }
-
 }

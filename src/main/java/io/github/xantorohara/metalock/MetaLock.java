@@ -7,6 +7,9 @@ import java.lang.annotation.*;
  * should be synchronized by the given name and parameter name.
  * <p>
  * Name and param form an unique key to lock.
+ * Param type can be: number, string or any object which .toString() method returns string that represents
+ * some unique characteristic of the object.
+ *
  * This annotation can be repeatable.
  *
  * @author Xantorohara
