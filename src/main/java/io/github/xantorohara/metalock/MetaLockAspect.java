@@ -17,29 +17,25 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Wrap methods annotated as @MetaLock and make them synchronised by name from annotation
+ * and value from method parameter.
+ *
+ * @author Xantorohara
+ */
 @Aspect
 public class MetaLockAspect {
-
-    private static class ReservedLock extends ReentrantLock {
-        private int count = 0;
-
-        void reserve() {
-            count++;
-        }
-
-        void release() {
-            count--;
-        }
-
-        boolean isFree() {
-            return count == 0;
-        }
-    }
-
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    /**
+     * Unique number generator to log Before, After or Error states
+     * of the target method invocation
+     */
     private final AtomicInteger unique = new AtomicInteger(1000000);
 
+    /**
+     * Locks storage.
+     */
     private final ConcurrentMap<String, ReservedLock> namedLocks = new ConcurrentHashMap<>();
 
     private final ReentrantLock synchronizer = new ReentrantLock();
@@ -49,7 +45,6 @@ public class MetaLockAspect {
     public Object lockAround(ProceedingJoinPoint pjp) throws Throwable {
 
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
-
         Method method = methodSignature.getMethod();
         String methodName = methodSignature.toShortString();
         String[] parameterNames = methodSignature.getParameterNames();
@@ -152,5 +147,28 @@ public class MetaLockAspect {
             lock.unlock();
         }
         log.debug("Unlocked {}", current);
+    }
+
+    /**
+     * Extension of the ReentrantLock with ability to "reserve"
+     * lock before the real locking.
+     * <p>
+     * Actually this class itself is not thread-safe, but its methods
+     * reserve(), release() and isFree() are always called from the thread-safe environment.
+     */
+    private static class ReservedLock extends ReentrantLock {
+        private volatile int count = 0;
+
+        void reserve() {
+            count++;
+        }
+
+        void release() {
+            count--;
+        }
+
+        boolean isFree() {
+            return count == 0;
+        }
     }
 }

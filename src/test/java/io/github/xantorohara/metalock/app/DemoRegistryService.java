@@ -1,16 +1,23 @@
 package io.github.xantorohara.metalock.app;
 
+import io.github.xantorohara.metalock.MetaLock;
 import io.github.xantorohara.metalock.NameLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import static io.github.xantorohara.metalock.app.ThreadUtils.sleep;
 
 /**
  * This dummy service maintains some Registry.
  * This Registry has Domains, Directories, Records and Indexes.
+ * Other service use methods provided by this Registry.
+ * <p>
+ * This service just demonstrates usage of @NameLock and @MetLock annotations.
  */
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -19,11 +26,17 @@ public class DemoRegistryService {
     private static final String PUBLIC_DOMAIN = "PublicDomain";
     private static final String PERSONAL_DOMAIN = "PersonalDomain";
 
+    private final Map<String, String> recordsDummyStorage = new ConcurrentHashMap<>();
+
     @Autowired
     private Auditor auditor;
 
     public Auditor getAuditor() {
         return auditor;
+    }
+
+    public Map<String, String> getRecordsDummyStorage() {
+        return recordsDummyStorage;
     }
 
     /**
@@ -73,5 +86,25 @@ public class DemoRegistryService {
         auditor.logAction("Backup started");
         sleep(200); //do some work
         auditor.logAction("Backup done");
+    }
+
+    /**
+     * Save (insert or update) record in the Registry.
+     *
+     * @param recordKey
+     * @param recordValue
+     */
+    @MetaLock(name = "Record", param = "recordKey")
+    public void saveRecord(String recordKey, String recordValue) {
+        auditor.logAction("Save select " + recordKey);
+        String value = recordsDummyStorage.get(recordKey);
+        sleep(200); //do some work
+        if (value == null) {
+            auditor.logAction("Save insert " + recordKey);
+            recordsDummyStorage.put(recordKey, recordValue);
+        } else {
+            auditor.logAction("Save update " + recordKey);
+            recordsDummyStorage.put(recordKey, recordValue);
+        }
     }
 }

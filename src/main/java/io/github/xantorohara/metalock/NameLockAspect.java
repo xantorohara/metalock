@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * Wrap methods annotated as @NameLock and make them synchronised by name (or names)
  * It sorts names before locks and reversed unlocks to prevent deadlocks
  *
  * @author Xantorohara
