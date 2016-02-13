@@ -91,12 +91,12 @@ public class MetaLockAspect {
         }
 
         try {
-            log.debug("Enter {} {}", current, methodName);
+            log.debug("Before {} {}", current, methodName);
             Object result = pjp.proceed();
-            log.debug("Exit {} {}", current, methodName);
+            log.debug("After {} {}", current, methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("Failed {} {}", current, methodName);
+            log.debug("Error {} {}", current, methodName);
             throw e;
         } finally {
             if (!lockNames.isEmpty()) {

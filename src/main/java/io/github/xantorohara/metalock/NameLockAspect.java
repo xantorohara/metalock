@@ -24,7 +24,7 @@ public class NameLockAspect {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-     * Unique number generator to log Before, After or Throwing states
+     * Unique number generator to log Before, After or Error states
      * of the target method invocation
      */
     private final AtomicInteger unique = new AtomicInteger(1000000);
@@ -43,7 +43,7 @@ public class NameLockAspect {
      * @return
      * @throws Throwable
      */
-    @Around("@annotation(io.github.xantorohara.metalock.NamedLock)")
+    @Around("@annotation(io.github.xantorohara.metalock.NameLock)")
     public Object lockAround(ProceedingJoinPoint pjp) throws Throwable {
 
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
@@ -60,12 +60,12 @@ public class NameLockAspect {
         lock(lockNames, current);
 
         try {
-            log.debug("Before {} {}", current, methodName);
+            log.debug("{} Before {}", current, methodName);
             Object result = pjp.proceed();
-            log.debug("After {} {}", current, methodName);
+            log.debug("{} After {}", current, methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("Throwing {} {}", current, methodName);
+            log.debug("{} Error {}", current, methodName);
             throw e;
         } finally {
             unlock(lockNames, current);
@@ -80,10 +80,10 @@ public class NameLockAspect {
      */
     private void lock(String[] sortedLockNames, int unique) {
         for (String lockName : sortedLockNames) {
-            log.debug("Locking name {} {}", unique, lockName);
+            log.debug("{} Locking {}", unique, lockName);
             namedLocks.computeIfAbsent(lockName, s -> new ReentrantLock()).lock();
         }
-        log.debug("Locked {}", unique);
+        log.debug("{} Locked", unique);
     }
 
     /**
@@ -95,10 +95,10 @@ public class NameLockAspect {
     private void unlock(String[] sortedLockNames, int unique) {
         for (int i = sortedLockNames.length - 1; i >= 0; i--) {
             String lockName = sortedLockNames[i];
-            log.debug("Unlocking name {} {}", unique, lockName);
+            log.debug("{} Unlocking {}", unique, lockName);
             namedLocks.get(lockName).unlock();
         }
-        log.debug("Unlocked {}", unique);
+        log.debug("{} Unlocked", unique);
     }
 
 }

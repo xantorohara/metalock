@@ -6,8 +6,10 @@ import io.github.xantorohara.metalock.NameLockAspect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @Configuration
+@EnableAspectJAutoProxy
 @ComponentScan("io.github.xantorohara.metalock")
 public class TestApplication {
     @Bean
