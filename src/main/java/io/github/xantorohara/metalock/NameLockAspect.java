@@ -82,8 +82,8 @@ public class NameLockAspect {
         for (String lockName : sortedLockNames) {
             log.debug("{} Locking {}", unique, lockName);
             namedLocks.computeIfAbsent(lockName, s -> new ReentrantLock()).lock();
+            log.debug("{} Locked {}", unique, lockName);
         }
-        log.debug("{} Locked", unique);
     }
 
     /**
@@ -97,8 +97,8 @@ public class NameLockAspect {
             String lockName = sortedLockNames[i];
             log.debug("{} Unlocking {}", unique, lockName);
             namedLocks.get(lockName).unlock();
+            log.debug("{} Unlocked {}", unique, lockName);
         }
-        log.debug("{} Unlocked", unique);
     }
 
 }

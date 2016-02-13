@@ -1,6 +1,6 @@
 package io.github.xantorohara.metalock.app;
 
-public class Sleep {
+public class ThreadUtils {
     public static void sleep(long sleepTime) {
         try {
             Thread.sleep(sleepTime);

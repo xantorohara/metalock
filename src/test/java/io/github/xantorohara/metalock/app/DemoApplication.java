@@ -11,7 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 @Configuration
 @EnableAspectJAutoProxy
 @ComponentScan("io.github.xantorohara.metalock")
-public class TestApplication {
+public class DemoApplication {
     @Bean
     public MetaLockAspect getMetaLockAspect() {
         return new MetaLockAspect();
@@ -21,5 +21,4 @@ public class TestApplication {
     public NameLockAspect getNamedLockAspect() {
         return new NameLockAspect();
     }
-
 }
