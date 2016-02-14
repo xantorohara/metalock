@@ -41,7 +41,7 @@ public class MetadataService {
 
     /**
      * For some reason we need to prevent concurrent insertion of Metadada object for the same user.
-     * Also metadataKey is unique constraint
+     * Also value from the "metadataKey" parameter is unique constraint
      */
     @MetaLock(name = "Metadata", param = "metadataKey")
     @MetaLock(name = "User", param = "username")
@@ -57,7 +57,7 @@ public class MetadataService {
         }
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(200);
         } catch (InterruptedException ignore) {
         }
 
