@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class Auditor {
+public class DummyAuditor {
 
     private ConcurrentLinkedQueue<String> actions = new ConcurrentLinkedQueue<>();
 
@@ -16,6 +16,10 @@ public class Auditor {
         return actions;
     }
 
+    /**
+     * Just collect actions in the queue
+     * @param action
+     */
     public void logAction(String action) {
         actions.add(action);
     }

@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Queue;
 
-import static io.github.xantorohara.metalock.app.ThreadUtils.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -51,7 +50,7 @@ public class MetaLockAspectTest {
 
         for (Thread thread : threads) {
             thread.start();
-            sleep(100);
+            Thread.sleep(100);
         }
 
         for (Thread thread : threads) {
@@ -78,7 +77,7 @@ public class MetaLockAspectTest {
 
         for (Thread thread : threads) {
             thread.start();
-            sleep(100);
+            Thread.sleep(100);
         }
 
         for (Thread thread : threads) {

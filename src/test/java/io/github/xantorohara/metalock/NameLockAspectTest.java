@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Queue;
 
-import static io.github.xantorohara.metalock.app.ThreadUtils.sleep;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -44,7 +43,7 @@ public class NameLockAspectTest {
 
         for (Thread thread : threads) {
             thread.start();
-            sleep(100);
+            Thread.sleep(100);
         }
 
         for (Thread thread : threads) {
@@ -71,7 +70,6 @@ public class NameLockAspectTest {
 
         for (Thread thread : threads) {
             thread.start();
-            sleep(100);
         }
 
         for (Thread thread : threads) {
@@ -80,10 +78,10 @@ public class NameLockAspectTest {
 
         Queue<String> actions = demoRegistryService.getAuditor().getActions();
 
-        assertThat(actions.poll(), equalTo("Indexing Public"));
-        assertThat(actions.poll(), equalTo("Indexing Personal"));
-        assertThat(actions.poll(), equalTo("Indexed Public"));
-        assertThat(actions.poll(), equalTo("Indexed Personal"));
+        assertThat(actions.poll(), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.poll(), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.poll(), isOneOf("Indexed Public", "Indexed Personal"));
+        assertThat(actions.poll(), isOneOf("Indexed Public", "Indexed Personal"));
         assertThat(actions.poll(), is(nullValue()));
     }
 
@@ -97,7 +95,7 @@ public class NameLockAspectTest {
 
         for (Thread thread : threads) {
             thread.start();
-            sleep(100);
+            Thread.sleep(100);
         }
 
         for (Thread thread : threads) {
@@ -108,10 +106,10 @@ public class NameLockAspectTest {
 
         assertThat(actions.poll(), equalTo("Backup started"));
         assertThat(actions.poll(), equalTo("Backup done"));
-        assertThat(actions.poll(), equalTo("Indexing Public"));
-        assertThat(actions.poll(), equalTo("Indexing Personal"));
-        assertThat(actions.poll(), equalTo("Indexed Public"));
-        assertThat(actions.poll(), equalTo("Indexed Personal"));
+        assertThat(actions.poll(), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.poll(), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.poll(), isOneOf("Indexed Public", "Indexed Personal"));
+        assertThat(actions.poll(), isOneOf("Indexed Public", "Indexed Personal"));
         assertThat(actions.poll(), is(nullValue()));
     }
 }

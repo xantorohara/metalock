@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.github.xantorohara.metalock.app.ThreadUtils.sleep;
-
 /**
  * This dummy service maintains some Registry.
  * This Registry has Domains, Directories, Records and Indexes.
@@ -29,9 +27,11 @@ public class DemoRegistryService {
     private final Map<String, String> recordsDummyStorage = new ConcurrentHashMap<>();
 
     @Autowired
-    private Auditor auditor;
+    private DummyAuditor auditor;
+    @Autowired
+    private DummyWorker worker;
 
-    public Auditor getAuditor() {
+    public DummyAuditor getAuditor() {
         return auditor;
     }
 
@@ -48,7 +48,7 @@ public class DemoRegistryService {
     @NameLock(PUBLIC_DOMAIN)
     public void createDirectoryInThePublicDomain(String directoryName) {
         auditor.logAction("Creating Public " + directoryName);
-        sleep(200); //do some work
+        worker.doSomeWork(200);
         auditor.logAction("Created Public " + directoryName);
     }
 
@@ -60,7 +60,7 @@ public class DemoRegistryService {
     @NameLock(PUBLIC_DOMAIN)
     public void indexPublicDomain() {
         auditor.logAction("Indexing Public");
-        sleep(200); //do some work
+        worker.doSomeWork(200);
         auditor.logAction("Indexed Public");
     }
 
@@ -72,7 +72,7 @@ public class DemoRegistryService {
     @NameLock(PERSONAL_DOMAIN)
     public void indexDomain() {
         auditor.logAction("Indexing Personal");
-        sleep(200); //do some work
+        worker.doSomeWork(200);
         auditor.logAction("Indexed Personal");
     }
 
@@ -84,7 +84,7 @@ public class DemoRegistryService {
     @NameLock({PUBLIC_DOMAIN, PERSONAL_DOMAIN})
     public void backupDomains() {
         auditor.logAction("Backup started");
-        sleep(200); //do some work
+        worker.doSomeWork(200);
         auditor.logAction("Backup done");
     }
 
@@ -98,7 +98,7 @@ public class DemoRegistryService {
     public void saveRecord(String recordKey, String recordValue) {
         auditor.logAction("Save select " + recordKey);
         String value = recordsDummyStorage.get(recordKey);
-        sleep(200); //do some work
+        worker.doSomeWork(200);
         if (value == null) {
             auditor.logAction("Save insert " + recordKey);
             recordsDummyStorage.put(recordKey, recordValue);

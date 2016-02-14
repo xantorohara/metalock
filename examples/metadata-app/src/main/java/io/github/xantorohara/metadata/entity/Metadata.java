@@ -21,6 +21,9 @@ public class Metadata {
     @Column(nullable = false)
     String value;
 
+    public Metadata() {
+    }
+
     public Metadata(String key, String value) {
         this.key = key;
         this.value = value;
