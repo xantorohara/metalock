@@ -3,6 +3,7 @@ package io.github.xantorohara.metadata.service;
 import io.github.xantorohara.metadata.entity.Metadata;
 import io.github.xantorohara.metadata.repository.MetadataRepository;
 import io.github.xantorohara.metalock.MetaLock;
+import io.github.xantorohara.metalock.NameLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,28 @@ public class MetadataService {
     @MetaLock(name = "Metadata", param = "key")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Metadata createMetadata(String key, String val) {
+        log.info("Create Metadata {}", key);
+        Metadata metadata = metadataRepository.findByKey(key);
+
+        if (metadata == null) {
+            metadata = new Metadata(key, val);
+        } else {
+            metadata.setValue(val);
+        }
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException ignore) {
+        }
+
+        metadata = metadataRepository.saveAndFlush(metadata);
+        log.info("Created Metadata {}", key);
+        return metadata;
+    }
+
+    @NameLock("table_metadata")
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Metadata createMetadataUsingTableLocking(String key, String val) {
         log.info("Create Metadata {}", key);
         Metadata metadata = metadataRepository.findByKey(key);
 

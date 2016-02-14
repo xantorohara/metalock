@@ -23,6 +23,28 @@ public class MetadataServiceTest {
     MetadataRepository metadataRepository;
 
     @Test
+    public void concurrentWritesUsingTableLockingAreSerial() throws InterruptedException {
+        Thread[] threads = {
+                new Thread(() -> metadataService.createMetadataUsingTableLocking("SomeKey1", "SomeValue1")),
+                new Thread(() -> metadataService.createMetadataUsingTableLocking("SomeKey2", "SomeValue2"))
+        };
+        for (Thread thread : threads) {
+            thread.start();
+            Thread.sleep(100);
+        }
+
+        for (Thread thread : threads) {
+            thread.join();
+        }
+
+        Metadata metadata1 = metadataRepository.findByKey("SomeKey1");
+        assertThat(metadata1.getValue(), equalTo("SomeValue1"));
+
+        Metadata metadata2 = metadataRepository.findByKey("SomeKey2");
+        assertThat(metadata2.getValue(), equalTo("SomeValue2"));
+    }
+
+    @Test
     public void concurrentWritesWithDifferentKeysCanBeParallel() throws InterruptedException {
         Thread[] threads = {
                 new Thread(() -> metadataService.createMetadata("SomeKey1", "SomeValue1")),
