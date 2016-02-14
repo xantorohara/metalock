@@ -25,21 +25,21 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
-            <!--<scope>compile</scope>-->
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aop</artifactId>
             <version>${spring.version}</version>
-            <!--<scope>compile</scope>-->
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
             <version>${spring.version}</version>
-            <!--<scope>compile</scope>-->
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -53,7 +53,7 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-            <optional>true</optional>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
