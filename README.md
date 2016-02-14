@@ -4,7 +4,7 @@ to do some syncronisation work in a simple way.
 
 ## Method leval annotations
 ### @NameLock
-It is possible to do locks similar to "Table level locking"
+It is possible to do locks similar to "Database Table level locking"
 
 ```java
 @NameLock("SOME_TABLE_NAME")
@@ -14,7 +14,9 @@ public SomeEntity saveEntity() {
 ```
 
 ### @MetaLock
-It is possible to do locks like "Row level locking"
+It is possible to do locks similar to "Database Row level locking",
+but with ability to lock entities by some values,
+and when the given entity is not yet persisted in the database.
 ```java
 @MetaLock(name = "Record", param = "recordKey")
 public void saveRecord(String recordKey, String recordValue) {
@@ -23,7 +25,7 @@ public void saveRecord(String recordKey, String recordValue) {
 ```
 
 ### Aspects
-Can be enabled via Spring's Java Based Configuration
+Aspects for the annotations above can be enabled via Spring's Java Based Configuration:
 ```java
 @Configuration
 @EnableAspectJAutoProxy
@@ -62,16 +64,16 @@ Also it contains demo application medatata-app in an "examples" directory.
 ## Install
 
 ### Install to local Maven repository
-#### Compile and install from sources using this command:
+- Compile and install from sources using this command:
 
 `mvn clean install`
 
-#### Install jar using the command:
+- Install jar using this command:
 
 `mvn install:install-file -Dfile=metalock-0.1.0-SNAPSHOT.jar -DgroupId=io.github.xantorohara
 -DartifactId=metalock -Dversion=0.1.0-SNAPSHOT -Dpackaging=jar`
 
-or
+or this:
 
 `mvn install:install-file -Dfile=metalock-0.1.0-SNAPSHOT.jar -DpomFile=pom.xml`
 
