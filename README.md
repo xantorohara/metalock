@@ -2,6 +2,9 @@
 This library provides some useful annotations and aspects that make it possible
 to do some syncronisations in a simple way.
 
+Internally it uses concurrent map with named ReentrantLocks.
+
+
 ## Method leval annotations
 ### @NameLock
 It is possible to do locks similar to "Database Table level locking"
