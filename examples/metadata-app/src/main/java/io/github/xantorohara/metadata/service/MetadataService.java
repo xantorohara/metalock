@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,7 @@ public class MetadataService {
     MetadataRepository metadataRepository;
 
     @MetaLock(name = "Metadata", param = "key")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     public Metadata createMetadata(String key, String val) {
         log.info("Create Metadata {}", key);
         Metadata metadata = metadataRepository.findByKey(key);
@@ -41,7 +42,7 @@ public class MetadataService {
     }
 
     @NameLock("table_metadata")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     public Metadata createMetadataUsingTableLocking(String key, String val) {
         log.info("Create Metadata {}", key);
         Metadata metadata = metadataRepository.findByKey(key);
@@ -68,7 +69,7 @@ public class MetadataService {
      */
     @MetaLock(name = "Metadata", param = "metadataKey")
     @MetaLock(name = "User", param = "username")
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
     public Metadata createMetadata(String username, String metadataKey, String metadataVal) {
         log.info("Create Metadata {} for user {}", metadataKey, username);
         Metadata metadata = metadataRepository.findByKey(metadataKey);

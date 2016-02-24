@@ -46,7 +46,7 @@
         <dependency>
             <groupId>io.github.xantorohara</groupId>
             <artifactId>metalock</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.1.1</version>
         </dependency>
 
     </dependencies>
