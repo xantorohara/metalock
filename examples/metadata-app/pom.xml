@@ -5,7 +5,7 @@
 
     <groupId>io.github.xantorohara</groupId>
     <artifactId>metadata-app</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1</version>
 
     <packaging>jar</packaging>
 

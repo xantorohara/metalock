@@ -1,8 +1,11 @@
 # Metalock Java library
-This library provides some useful annotations and aspects that make it possible
-to do some syncronisations in a simple way.
 
-Internally it uses concurrent map with named ReentrantLocks.
+The library contains Java annotations and aspects 
+that make it possible to synchronize methods in a simple way.
+
+Actually it provides some kind of Named Locks.
+
+Internally it is based on concurrent maps of reentrant locks.
 
 
 ## Method leval annotations
