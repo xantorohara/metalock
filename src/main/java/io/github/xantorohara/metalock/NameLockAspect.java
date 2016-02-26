@@ -25,10 +25,10 @@ public class NameLockAspect {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
-     * Unique number generator to log Before, After or Error states
+     * Serial number generator to log Before, After or Error states
      * of the target method invocation
      */
-    private final AtomicInteger unique = new AtomicInteger(1000000);
+    private final AtomicInteger serial = new AtomicInteger(1000000);
 
     /**
      * Locks storage.
@@ -56,20 +56,20 @@ public class NameLockAspect {
 
         Arrays.sort(lockNames);
 
-        int current = unique.incrementAndGet();
+        int unique = serial.incrementAndGet();
 
-        lock(lockNames, current);
+        lock(lockNames, unique);
 
         try {
-            log.debug("{} Before {}", current, methodName);
+            log.debug("{} Before {}", unique, methodName);
             Object result = pjp.proceed();
-            log.debug("{} After {}", current, methodName);
+            log.debug("{} After {}", unique, methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("{} Error {}", current, methodName);
+            log.debug("{} Error {}", unique, methodName);
             throw e;
         } finally {
-            unlock(lockNames, current);
+            unlock(lockNames, unique);
         }
     }
 

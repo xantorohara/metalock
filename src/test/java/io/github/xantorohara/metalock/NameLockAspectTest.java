@@ -22,7 +22,7 @@ public class NameLockAspectTest {
 
     @Autowired
     DemoRegistryService demoRegistryService;
-
+/*
     @Test
     public void singleWriteToThePublicDomainShouldWork() throws InterruptedException {
         demoRegistryService.createDirectoryInThePublicDomain("Documents");
@@ -112,4 +112,5 @@ public class NameLockAspectTest {
         assertThat(actions.poll(), isOneOf("Indexed Public", "Indexed Personal"));
         assertThat(actions.poll(), is(nullValue()));
     }
+    */
 }

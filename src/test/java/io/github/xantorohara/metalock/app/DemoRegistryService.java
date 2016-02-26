@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This dummy service maintains some Registry.
  * This Registry has Domains, Directories, Records and Indexes.
  * Other service use methods provided by this Registry.
- * <p>
+ * <p/>
  * This service just demonstrates usage of @NameLock and @MetLock annotations.
  */
 @Service
@@ -41,7 +41,7 @@ public class DemoRegistryService {
 
     /**
      * Create a new Directory in the Public Domain.
-     * <p>
+     * <p/>
      * For a some reason we can't create new Directories in parallel.
      * We have to acquire a lock before write operations.
      */
@@ -54,7 +54,7 @@ public class DemoRegistryService {
 
     /**
      * Create an Index for the Records in the Public Domain.
-     * <p>
+     * <p/>
      * We have to acquire a lock for this Domain before write operations.
      */
     @NameLock(PUBLIC_DOMAIN)
@@ -66,7 +66,7 @@ public class DemoRegistryService {
 
     /**
      * Create an Index for the Records in the Personal Domain.
-     * <p>
+     * <p/>
      * We have to acquire a lock for this Domain before write operations.
      */
     @NameLock(PERSONAL_DOMAIN)
@@ -100,11 +100,18 @@ public class DemoRegistryService {
         String value = recordsDummyStorage.get(recordKey);
         worker.doSomeWork(200);
         if (value == null) {
-            auditor.logAction("Save insert " + recordKey);
+            auditor.logAction("Save insert " + recordKey + " " + recordValue);
             recordsDummyStorage.put(recordKey, recordValue);
         } else {
-            auditor.logAction("Save update " + recordKey);
+            auditor.logAction("Save update " + recordKey + " " + recordValue);
             recordsDummyStorage.put(recordKey, recordValue);
         }
+    }
+
+    /**
+     * Remove all records from the Registry
+     */
+    public void clearRecords() {
+        recordsDummyStorage.clear();
     }
 }

@@ -4,20 +4,27 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class DummyAuditor {
 
-    private ConcurrentLinkedQueue<String> actions = new ConcurrentLinkedQueue<>();
+    private List<String> actions = new CopyOnWriteArrayList<>();
 
-    public ConcurrentLinkedQueue<String> getActions() {
-        return actions;
+    public List<String> takeActions() {
+        try {
+            return new ArrayList<>(actions);
+        } finally {
+            actions.clear();
+        }
     }
 
     /**
-     * Just collect actions in the queue
+     * Just collect actions in the list
+     *
      * @param action
      */
     public void logAction(String action) {
