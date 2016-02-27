@@ -4,7 +4,7 @@ The library contains Java annotations and aspects that make it possible to synch
 
 Actually it provides some kind of Named Locks.
 
-Internally it is based on concurrent maps of reentrant locks.
+Internally it is based on concurrent maps of ordered reentrant locks.
 
 ## Install
 
@@ -22,7 +22,7 @@ You always free to build it from the sources via this command:
 
 `mvn clean install`
 
-Or just download jars directly from the [target](https://github.com/xantorohara/metalock/tree/master/target)
+Or just download jars directly from the [target](https://github.com/xantorohara/metalock/tree/master/target) directory.
 
 ## Method level annotations
 ### @NameLock
