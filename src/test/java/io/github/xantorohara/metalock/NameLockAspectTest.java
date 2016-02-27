@@ -16,7 +16,7 @@ import java.util.List;
 
 import static io.github.xantorohara.metalock.TestUtils.runConcurrent;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DemoApplication.class)
@@ -78,7 +78,7 @@ public class NameLockAspectTest {
 
     @Test
     @Repeat(3)
-    public void backupAcquiresBothLocksButSubsequentOperationsCanBeInParallel() throws InterruptedException {
+    public void backupAcquiresBothLocksButSubsequentOperationsCanBeParallel() throws InterruptedException {
         runConcurrent(100,
                 demoRegistryService::backupDomains,
                 demoRegistryService::indexPublicDomain,
@@ -87,13 +87,11 @@ public class NameLockAspectTest {
 
         List<String> actions = demoRegistryService.getAuditor().takeActions();
 
-        assertThat(actions, contains(
-                "Backup started",
-                "Backup done",
-                "Indexing Public",
-                "Indexing Personal",
-                "Indexed Public",
-                "Indexed Personal"
-        ));
+        assertThat(actions.get(0), equalTo("Backup started"));
+        assertThat(actions.get(1), equalTo("Backup done"));
+        assertThat(actions.get(2), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.get(3), isOneOf("Indexing Public", "Indexing Personal"));
+        assertThat(actions.get(4), isOneOf("Indexed Public", "Indexed Personal"));
+        assertThat(actions.get(5), isOneOf("Indexed Public", "Indexed Personal"));
     }
 }

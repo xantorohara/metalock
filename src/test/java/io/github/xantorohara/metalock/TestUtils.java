@@ -8,9 +8,9 @@ public class TestUtils {
      * Run multiple tasks concurrently and wait until all are finished.
      * Use small gap times between starts together with continuous tasks
      * in order to model the relevant concurrent cases.
-     *
+     * <p/>
      * For example, we have two tasks, gap time = 10ms, task time = 20ms.
-     *
+     * <p/>
      * Without metalocking tasks execution would be like this:
      * <pre>
      * Task1: |run|___20ms_task_time___|end|
@@ -18,7 +18,7 @@ public class TestUtils {
      *                       |^^^^^^^^^|
      *                         parallel
      * </pre>
-     *
+     * <p/>
      * With metalocking:
      * <pre>
      * Task1: |run|___20ms_task_time___|end|
@@ -27,9 +27,9 @@ public class TestUtils {
      *                   |^^^^^^^^^^^^^^^^^|^acquire the metalock
      *                      wait for the metalock
      * </pre>
-
+     *
      * @param startGapTime - a gap time before subsequent thread start in milliseconds
-     * @param tasks - varargs of Runnable
+     * @param tasks        - varargs of Runnable
      * @throws InterruptedException
      */
     public static void runConcurrent(long startGapTime, Runnable... tasks) throws InterruptedException {

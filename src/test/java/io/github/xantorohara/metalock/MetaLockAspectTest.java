@@ -13,13 +13,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import static io.github.xantorohara.metalock.TestUtils.runConcurrent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DemoApplication.class)
@@ -35,6 +33,7 @@ public class MetaLockAspectTest {
     }
 
     @Test
+    @Repeat(2)
     public void serialWritesShouldWork() throws InterruptedException {
         List<String> actions;
 
@@ -80,7 +79,7 @@ public class MetaLockAspectTest {
 
         List<String> actions = demoRegistryService.getAuditor().takeActions();
 
-        assertThat(actions,  contains(
+        assertThat(actions, contains(
                 "Save select SomeKey1",
                 "Save select SomeKey2",
                 "Save insert SomeKey1 SomeValue",
