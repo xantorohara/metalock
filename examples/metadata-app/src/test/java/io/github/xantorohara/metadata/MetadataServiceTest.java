@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.annotation.Repeat;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static io.github.xantorohara.metalock.TestUtils.runConcurrent;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -26,19 +28,12 @@ public class MetadataServiceTest {
     MetadataRepository metadataRepository;
 
     @Test
+    @Repeat(3)
     public void concurrentWritesUsingTableLockingAreSerial() throws InterruptedException {
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadataUsingTableLocking("SomeKey1", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadataUsingTableLocking("SomeKey2", "SomeValue2"))
-        };
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadataUsingTableLocking("SomeKey1", "SomeValue1"),
+                () -> metadataService.createMetadataUsingTableLocking("SomeKey2", "SomeValue2")
+        );
 
         Metadata metadata1 = metadataRepository.findByKey("SomeKey1");
         assertThat(metadata1.getValue(), equalTo("SomeValue1"));
@@ -48,19 +43,12 @@ public class MetadataServiceTest {
     }
 
     @Test
+    @Repeat(3)
     public void concurrentWritesWithDifferentKeysCanBeParallel() throws InterruptedException {
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadata("SomeKey1", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadata("SomeKey2", "SomeValue2"))
-        };
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadata("SomeKey1", "SomeValue1"),
+                () -> metadataService.createMetadata("SomeKey2", "SomeValue2")
+        );
 
         Metadata metadata1 = metadataRepository.findByKey("SomeKey1");
         assertThat(metadata1.getValue(), equalTo("SomeValue1"));
@@ -70,44 +58,24 @@ public class MetadataServiceTest {
     }
 
     @Test
+    @Repeat(3)
     public void concurrentWritesWithTheSameKeyShouldBeSerial() throws InterruptedException {
-        log.info("concurrentWritesWithTheSameKeyShouldBeSerial");
-
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadata("SomeKey", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadata("SomeKey", "SomeValue2"))
-        };
-
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadata("SomeKey", "SomeValue1"),
+                () -> metadataService.createMetadata("SomeKey", "SomeValue2")
+        );
 
         Metadata metadata = metadataRepository.findByKey("SomeKey");
         assertThat(metadata.getValue(), equalTo("SomeValue2"));
     }
 
     @Test
+    @Repeat(3)
     public void serialWritesWhenKeysAreDifferentButTheSameUsername() throws InterruptedException {
-        String username = "Monkey";
-
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadata(username, "SomeKey1", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadata(username, "SomeKey2", "SomeValue2"))
-        };
-
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadata("Monkey", "SomeKey1", "SomeValue1"),
+                () -> metadataService.createMetadata("Monkey", "SomeKey2", "SomeValue2")
+        );
 
         Metadata metadata1 = metadataRepository.findByKey("SomeKey1");
         assertThat(metadata1.getValue(), equalTo("SomeValue1"));
@@ -117,42 +85,24 @@ public class MetadataServiceTest {
     }
 
     @Test
+    @Repeat(3)
     public void serialWritesWhenUsernamesAreDifferentButTheSameKey() throws InterruptedException {
-        log.info("serialWritesWhenUsernamesAreDifferentButTheSameKey");
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadata("Donkey", "SomeKey", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadata("Monkey", "SomeKey", "SomeValue2"))
-        };
-
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadata("Donkey", "SomeKey", "SomeValue1"),
+                () -> metadataService.createMetadata("Monkey", "SomeKey", "SomeValue2")
+        );
 
         Metadata metadata1 = metadataRepository.findByKey("SomeKey");
         assertThat(metadata1.getValue(), equalTo("SomeValue2"));
     }
 
     @Test
+    @Repeat(3)
     public void parallelWritesWhenKeysAndUsernamesAreDifferent() throws InterruptedException {
-
-        Thread[] threads = {
-                new Thread(() -> metadataService.createMetadata("Donkey", "SomeKey1", "SomeValue1")),
-                new Thread(() -> metadataService.createMetadata("Monkey", "SomeKey2", "SomeValue2"))
-        };
-
-        for (Thread thread : threads) {
-            thread.start();
-            Thread.sleep(100);
-        }
-
-        for (Thread thread : threads) {
-            thread.join();
-        }
+        runConcurrent(100,
+                () -> metadataService.createMetadata("Donkey", "SomeKey1", "SomeValue1"),
+                () -> metadataService.createMetadata("Monkey", "SomeKey2", "SomeValue2")
+        );
 
         Metadata metadata1 = metadataRepository.findByKey("SomeKey1");
         assertThat(metadata1.getValue(), equalTo("SomeValue1"));

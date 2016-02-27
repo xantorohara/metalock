@@ -6,6 +6,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Xantorohara
  */
 @Aspect
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class MetaLockAspect {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -153,7 +156,7 @@ public class MetaLockAspect {
     /**
      * Extension of the ReentrantLock with ability to "reserve"
      * lock before the real locking.
-     * <p>
+     * <p/>
      * Actually this class itself is not thread-safe, but its methods
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */

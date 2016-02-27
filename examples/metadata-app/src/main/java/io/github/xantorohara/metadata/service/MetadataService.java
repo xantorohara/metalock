@@ -20,14 +20,15 @@ public class MetadataService {
     MetadataRepository metadataRepository;
 
     @MetaLock(name = "Metadata", param = "key")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Metadata createMetadata(String key, String val) {
-        log.info("Create Metadata {}", key);
+        log.info("Create Metadata {} {}", key, val);
         Metadata metadata = metadataRepository.findByKey(key);
 
         if (metadata == null) {
             metadata = new Metadata(key, val);
         } else {
+            log.info(metadata.toString());
             metadata.setValue(val);
         }
 
@@ -37,12 +38,12 @@ public class MetadataService {
         }
 
         metadata = metadataRepository.saveAndFlush(metadata);
-        log.info("Created Metadata {}", key);
+        log.info("Created Metadata {} {}", key, val);
         return metadata;
     }
 
     @NameLock("table_metadata")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Metadata createMetadataUsingTableLocking(String key, String val) {
         log.info("Create Metadata {}", key);
         Metadata metadata = metadataRepository.findByKey(key);
@@ -64,12 +65,12 @@ public class MetadataService {
     }
 
     /**
-     * For some reason we need to prevent concurrent insertion of Metadada object for the same user.
+     * For some reason we need to prevent concurrent insertion of Metadata object for the same user.
      * Also value from the "metadataKey" parameter is unique constraint
      */
     @MetaLock(name = "Metadata", param = "metadataKey")
     @MetaLock(name = "User", param = "username")
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Metadata createMetadata(String username, String metadataKey, String metadataVal) {
         log.info("Create Metadata {} for user {}", metadataKey, username);
         Metadata metadata = metadataRepository.findByKey(metadataKey);
@@ -87,7 +88,7 @@ public class MetadataService {
 
         metadata = metadataRepository.saveAndFlush(metadata);
 
-        log.info("Create Metadata {} for user {}", metadataKey, username);
+        log.info("Created Metadata {} for user {}", metadataKey, username);
         return metadata;
     }
 }

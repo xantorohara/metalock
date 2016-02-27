@@ -52,4 +52,13 @@ public class Metadata {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "Metadata{" +
+                "uuid=" + uuid +
+                ", key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
