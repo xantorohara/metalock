@@ -1,6 +1,8 @@
 package io.github.xantorohara.metalock;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class TestUtils {
 
@@ -33,12 +35,34 @@ public class TestUtils {
      * @throws InterruptedException
      */
     public static void runConcurrent(long startGapTime, Runnable... tasks) throws InterruptedException {
+        final ReentrantLock lock = new ReentrantLock();
+        final Condition started = lock.newCondition();
+
         ArrayList<Thread> threads = new ArrayList<>(tasks.length);
+
         for (Runnable task : tasks) {
-            threads.add(new Thread(task));
+            threads.add(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        lock.lock();
+                        started.signal();
+                    } finally {
+                        lock.unlock();
+                    }
+                    task.run();
+                }
+            }));
         }
+
         for (Thread thread : threads) {
-            thread.start();
+            try {
+                lock.lock();
+                thread.start();
+                started.await();
+            } finally {
+                lock.unlock();
+            }
             Thread.sleep(startGapTime);
         }
 

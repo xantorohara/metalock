@@ -67,7 +67,7 @@ Also it contains demo application medatata-app in the "examples" directory.
 
 ## Download
 - [Metalock sources](https://github.com/xantorohara/metalock/archive/master.zip)
-- [Metalock jar](https://github.com/xantorohara/metalock/raw/master/target/metalock-0.1.0-SNAPSHOT.jar)
+- [Metalock jar](https://github.com/xantorohara/metalock/raw/master/target/metalock-0.1.1.jar)
 - [Metalock pom](https://github.com/xantorohara/metalock/raw/master/target/pom.xml)
 
 ## Install
@@ -79,11 +79,11 @@ Also it contains demo application medatata-app in the "examples" directory.
 
 - Install jar using this command:
 
-`mvn install:install-file -Dfile=metalock-0.1.0-SNAPSHOT.jar -DgroupId=io.github.xantorohara
--DartifactId=metalock -Dversion=0.1.0-SNAPSHOT -Dpackaging=jar`
+`mvn install:install-file -Dfile=metalock-0.1.1.jar -DgroupId=io.github.xantorohara
+-DartifactId=metalock -Dversion=0.1.1 -Dpackaging=jar`
 
 - or this:
 
-`mvn install:install-file -Dfile=metalock-0.1.0-SNAPSHOT.jar -DpomFile=pom.xml`
+`mvn install:install-file -Dfile=metalock-0.1.1.jar -DpomFile=pom.xml`
 
 

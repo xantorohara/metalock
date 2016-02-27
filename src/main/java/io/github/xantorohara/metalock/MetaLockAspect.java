@@ -174,5 +174,9 @@ public class MetaLockAspect {
         boolean isFree() {
             return count == 0;
         }
+
+        public ReservedLock() {
+            super(true);
+        }
     }
 }
