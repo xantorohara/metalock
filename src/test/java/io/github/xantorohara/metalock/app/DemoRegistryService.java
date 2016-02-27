@@ -70,7 +70,7 @@ public class DemoRegistryService {
      * We have to acquire a lock for this Domain before write operations.
      */
     @NameLock(PERSONAL_DOMAIN)
-    public void indexDomain() {
+    public void indexPersonalDomain() {
         auditor.logAction("Indexing Personal");
         worker.doSomeWork(200);
         auditor.logAction("Indexed Personal");
