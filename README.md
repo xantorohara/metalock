@@ -1,14 +1,30 @@
 # Metalock Java library
 
-The library contains Java annotations and aspects 
-that make it possible to synchronize methods in a simple way.
+The library contains Java annotations and aspects that make it possible to synchronize methods in a simple way.
 
 Actually it provides some kind of Named Locks.
 
 Internally it is based on concurrent maps of reentrant locks.
 
+## Install
 
-## Method leval annotations
+Metalock jars are available at the Maven Central via this dependency:
+
+```xml
+<dependency>
+  <groupId>io.github.xantorohara</groupId>
+  <artifactId>metalock</artifactId>
+  <version>0.1.1</version>
+</dependency>
+```
+
+You always free to build it from the sources via this command:
+
+`mvn clean install`
+
+Or just download jars directly from the [target](https://github.com/xantorohara/metalock/tree/master/target)
+
+## Method level annotations
 ### @NameLock
 It is possible to do locks similar to "Database Table level locking"
 
@@ -21,7 +37,7 @@ public SomeEntity saveEntity() {
 
 ### @MetaLock
 It is possible to do locks similar to "Database Row level locking",
-but with ability to lock entities by some values,
+but with ability to lock entities by some fields,
 and when the given entity is not yet persisted in the database.
 ```java
 @MetaLock(name = "Record", param = "recordKey")
@@ -30,11 +46,13 @@ public SomeRecord saveRecord(String recordKey, String recordValue) {
 }
 ```
 
-### Aspects
+## Aspects
 Metalock itself is a plain Java 8 library, but it uses Spring Framework for unit testing.
+
 Demo application also based on Spring. Spring is perfect.
 
 Aspects for the annotations above can be enabled via Spring's Java Based Configuration:
+
 ```java
 @Configuration
 @EnableAspectJAutoProxy
@@ -62,28 +80,5 @@ or via application xml:
 ## Examples
 
 This library has several unit-tests that demonstrates some cases.
-Also it contains demo application medatata-app in the "examples" directory.
-
-
-## Download
-- [Metalock sources](https://github.com/xantorohara/metalock/archive/master.zip)
-- [Metalock jar](https://github.com/xantorohara/metalock/raw/master/target/metalock-0.1.1.jar)
-- [Metalock pom](https://github.com/xantorohara/metalock/raw/master/target/pom.xml)
-
-## Install
-
-### Install to local Maven repository
-- Compile and install from sources using this command:
-
-`mvn clean install`
-
-- Install jar using this command:
-
-`mvn install:install-file -Dfile=metalock-0.1.1.jar -DgroupId=io.github.xantorohara
--DartifactId=metalock -Dversion=0.1.1 -Dpackaging=jar`
-
-- or this:
-
-`mvn install:install-file -Dfile=metalock-0.1.1.jar -DpomFile=pom.xml`
-
-
+Also it contains demo application medatata-app in the 
+[examples](https://github.com/xantorohara/metalock/tree/master/examples) directory.
