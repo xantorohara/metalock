@@ -22,7 +22,10 @@ You always free to build it from the sources via this command:
 
 `mvn clean install`
 
-Or just download jars directly from the [target](https://github.com/xantorohara/metalock/tree/master/target) directory.
+Or just download jars directly from the [target](https://github.com/xantorohara/metalock/tree/master/target) location.
+
+Previous releases are available on the [release page](https://github.com/xantorohara/metalock/releases)
+and at the [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cmetalock).
 
 ## Method level annotations
 ### @NameLock
