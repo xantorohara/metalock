@@ -13,7 +13,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -167,18 +166,18 @@ public class MetaLockAspect {
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
     private final static class ReservedLock extends ReentrantLock {
-        private final AtomicInteger count = new AtomicInteger();
+        private int count = 0;
 
         void reserve() {
-            count.incrementAndGet();
+            count++;
         }
 
         void release() {
-            count.decrementAndGet();
+            count--;
         }
 
         boolean isFree() {
-            return count.get() == 0;
+            return count == 0;
         }
 
         ReservedLock() {

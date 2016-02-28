@@ -1,6 +1,6 @@
-# Metalock Java library
+# Metalock Java library :vertical_traffic_light:
 
-The library contains Java annotations and aspects that make it possible to synchronize methods in a simple way.
+The library contains Java annotations and aspects that make it possible to synchronise methods in a simple way.
 
 Actually it provides some kind of "Named Locks".
 
@@ -23,26 +23,26 @@ Snapshots are available at the
 [Sonatype](https://oss.sonatype.org/content/repositories/snapshots/io/github/xantorohara/metalock/):
  
 ```xml
-  <repositories>
-        <repository>
-            <id>oss.sonatype.org-snapshot</id>
-            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    ...
-    <dependencies>
-        <dependency>
-            <groupId>io.github.xantorohara</groupId>
-            <artifactId>metalock</artifactId>
-            <version>0.1.2-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
+<repositories>
+    <repository>
+        <id>oss.sonatype.org-snapshot</id>
+        <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+...
+<dependencies>
+    <dependency>
+        <groupId>io.github.xantorohara</groupId>
+        <artifactId>metalock</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+    </dependency>
+</dependencies>
 ```
     
 You always free to build it from the sources via this command:
@@ -102,12 +102,12 @@ public void writeData(String filename, String data) {
 
 Use cases:
 * Database transaction synchronisation (similar to "Row-level locking")
-* Atomic writing to the file system
+* Atomic write to a file
 
 ## Aspects
 Metalock itself is a plain Java 8 library, but it uses Spring Framework for unit testing.
 
-Demo application also based on Spring. Spring is perfect.
+Demo application also based on Spring Framework. Spring is perfect.
 
 Aspects for the annotations above can be enabled via Spring's Java Based Configuration:
 
