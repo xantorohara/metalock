@@ -3,7 +3,6 @@ package io.github.xantorohara.metalock;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.DeclarePrecedence;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,8 @@ import java.util.concurrent.locks.ReentrantLock;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class NameLockAspect {
     protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final static String LOG_FORMAT = "NL{}A {} {}";
 
     /**
      * Serial number generator to log Before, After or Error states
@@ -65,12 +66,12 @@ public class NameLockAspect {
         lock(lockNames, unique);
 
         try {
-            log.debug("{} Before {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "Before", methodName);
             Object result = pjp.proceed();
-            log.debug("{} After {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "After", methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("{} Error {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "Error", methodName);
             throw e;
         } finally {
             unlock(lockNames, unique);
@@ -85,9 +86,9 @@ public class NameLockAspect {
      */
     private void lock(String[] sortedLockNames, int unique) {
         for (String lockName : sortedLockNames) {
-            log.debug("{} Locking {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Locking", lockName);
             namedLocks.computeIfAbsent(lockName, s -> new ReentrantLock(true)).lock();
-            log.debug("{} Locked {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Locked", lockName);
         }
     }
 
@@ -100,9 +101,9 @@ public class NameLockAspect {
     private void unlock(String[] sortedLockNames, int unique) {
         for (int i = sortedLockNames.length - 1; i >= 0; i--) {
             String lockName = sortedLockNames[i];
-            log.debug("{} Unlocking {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Unlocking", lockName);
             namedLocks.get(lockName).unlock();
-            log.debug("{} Unlocked {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Unlocked", lockName);
         }
     }
 

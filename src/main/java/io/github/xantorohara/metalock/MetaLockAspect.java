@@ -30,6 +30,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MetaLockAspect {
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
+    private final static String LOG_FORMAT = "ML{}A {} {}";
+
     /**
      * Serial number generator to log Before, After or Error states
      * of the target method invocation
@@ -89,12 +91,12 @@ public class MetaLockAspect {
         }
 
         try {
-            log.debug("{} Before {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "Before", methodName);
             Object result = pjp.proceed();
-            log.debug("{} After {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "After", methodName);
             return result;
         } catch (Throwable e) {
-            log.debug("{} Error {}", unique, methodName);
+            log.debug(LOG_FORMAT, unique, "Error", methodName);
             throw e;
         } finally {
             if (!lockNames.isEmpty()) {
@@ -108,7 +110,7 @@ public class MetaLockAspect {
      */
     private void lock(List<String> sortedLockNames, int unique) {
         for (String lockName : sortedLockNames) {
-            log.debug("{} Locking {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Locking", lockName);
             ReservedLock lock;
 
             synchronizer.lock();
@@ -120,7 +122,7 @@ public class MetaLockAspect {
             }
 
             lock.lock();
-            log.debug("{} Locked {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Locked", lockName);
         }
     }
 
@@ -132,7 +134,7 @@ public class MetaLockAspect {
 
         while (iter.hasPrevious()) {
             String lockName = iter.previous();
-            log.debug("{} Unlocking {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Unlocking", lockName);
 
             ReservedLock lock;
 
@@ -142,14 +144,14 @@ public class MetaLockAspect {
                 lock.release();
                 if (lock.isFree()) {
                     namedLocks.remove(lockName);
-                    log.debug("{} Removed {}", unique, lockName);
+                    log.debug(LOG_FORMAT, unique, "Removed", lockName);
                 }
             } finally {
                 synchronizer.unlock();
             }
 
             lock.unlock();
-            log.debug("{} Unlocked {}", unique, lockName);
+            log.debug(LOG_FORMAT, unique, "Unlocked", lockName);
         }
     }
 
