@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Target(value = {ElementType.METHOD})
 public @interface NameLock {
     /**
-     * Name (or names) of the lock
+     * Name (or names) of the lock.
      * I.e.: "USER_TABLE"
      */
     String[] value();

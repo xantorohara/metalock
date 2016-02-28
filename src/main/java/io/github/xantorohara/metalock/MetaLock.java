@@ -3,7 +3,7 @@ package io.github.xantorohara.metalock;
 import java.lang.annotation.*;
 
 /**
- * Annotation indicating that the execution of the target method
+ * Annotation indicates that the execution of the target method
  * should be synchronized by the given name and parameter name.
  * <p/>
  * Name and param form an unique key to lock.
@@ -19,13 +19,13 @@ import java.lang.annotation.*;
 @Target(value = {ElementType.METHOD})
 public @interface MetaLock {
     /**
-     * Name of the lock
+     * Name of the lock.
      * I.e.: "User"
      */
     String name();
 
     /**
-     * Name of the method parameter (or multiple parameters)
+     * Name of the method parameter (or multiple parameters).
      * I.e.: "username"
      * or {"firstName", "lastName"}
      */

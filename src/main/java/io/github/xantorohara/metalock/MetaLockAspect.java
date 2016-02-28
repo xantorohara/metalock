@@ -17,24 +17,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Wrap methods annotated as @MetaLock and make them synchronised by name from annotation
- * and value from method parameter.
+ * Wrap methods annotated as @MetaLock.
+ * Make them synchronised by name from the annotation and by values from method parameters.
  *
  * @author Xantorohara
  */
 @Aspect
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MetaLockAspect {
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(MetaLockAspect.class);
 
-    public final static char SEPARATOR = '§';
+    private static final char SEPARATOR = '§';
 
-    private final static String DEBUG_FORMAT = "ML{}U {}";
-    private final static String TRACE_FORMAT = "ML{}U {} {}";
+    private static final String DEBUG_FORMAT = "ML{}U {}";
+    private static final String TRACE_FORMAT = "ML{}U {} {}";
 
     /**
-     * Serial number generator to log Before, After or Error states
-     * of the target method invocation
+     * Serial number generator to log Before, After or Error states.
      */
     private final AtomicLong serial = new AtomicLong(1000000);
 
@@ -45,9 +44,9 @@ public class MetaLockAspect {
 
     private final ReentrantLock synchronizer = new ReentrantLock();
 
-    @Around("@annotation(io.github.xantorohara.metalock.MetaLock)||" +
-            "@annotation(io.github.xantorohara.metalock.MetaLocks)")
-    public Object lockAround(ProceedingJoinPoint pjp) throws Throwable {
+    @Around("@annotation(io.github.xantorohara.metalock.MetaLock)||"
+            + "@annotation(io.github.xantorohara.metalock.MetaLocks)")
+    public final Object lockAround(final ProceedingJoinPoint pjp) throws Throwable {
         long unique = serial.incrementAndGet();
 
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
@@ -55,7 +54,7 @@ public class MetaLockAspect {
         String methodName = methodSignature.toShortString();
         String[] parameterNames = methodSignature.getParameterNames();
 
-        log.debug(DEBUG_FORMAT, unique, methodName);
+        LOG.debug(DEBUG_FORMAT, unique, methodName);
 
         MetaLock[] metaLocks;
         if (method.isAnnotationPresent(MetaLocks.class)) {
@@ -78,20 +77,20 @@ public class MetaLockAspect {
         lock(lockNames, unique);
 
         try {
-            log.debug(DEBUG_FORMAT, unique, "Before");
+            LOG.debug(DEBUG_FORMAT, unique, "Before");
             Object result = pjp.proceed();
-            log.debug(DEBUG_FORMAT, unique, "After");
+            LOG.debug(DEBUG_FORMAT, unique, "After");
             return result;
         } catch (Throwable e) {
-            log.debug(DEBUG_FORMAT, unique, "Error");
+            LOG.debug(DEBUG_FORMAT, unique, "Error");
             throw e;
         } finally {
             unlock(lockNames, unique);
         }
     }
 
-    static String getLockName(String metaLockName, String[] metalockParam,
-                              String[] methodParameterNames, Object[] methodArgs) {
+    static String getLockName(final String metaLockName, final String[] metalockParam,
+                              final String[] methodParameterNames, final Object[] methodArgs) {
         StringBuilder lockName = new StringBuilder(metaLockName);
         for (int j = 0; j < methodParameterNames.length; j++) {
             for (String metalockParamName : metalockParam) {
@@ -110,11 +109,11 @@ public class MetaLockAspect {
     }
 
     /**
-     * Create or obtain named locks
+     * Create or obtain named locks.
      */
-    private void lock(String[] sortedLockNames, long unique) {
+    private void lock(final String[] sortedLockNames, final long unique) {
         for (String lockName : sortedLockNames) {
-            log.trace(TRACE_FORMAT, unique, "Locking", lockName);
+            LOG.trace(TRACE_FORMAT, unique, "Locking", lockName);
             ReservedLock lock;
 
             synchronizer.lock();
@@ -126,18 +125,18 @@ public class MetaLockAspect {
             }
 
             lock.lock();
-            log.trace(TRACE_FORMAT, unique, "Locked", lockName);
+            LOG.trace(TRACE_FORMAT, unique, "Locked", lockName);
         }
     }
 
     /**
-     * Release sorted named locks in reverse order
+     * Release sorted named locks in reverse order.
      */
-    private void unlock(String[] sortedLockNames, long unique) {
+    private void unlock(final String[] sortedLockNames, final long unique) {
         for (int i = sortedLockNames.length - 1; i >= 0; i--) {
             String lockName = sortedLockNames[i];
 
-            log.trace(TRACE_FORMAT, unique, "Unlocking", lockName);
+            LOG.trace(TRACE_FORMAT, unique, "Unlocking", lockName);
 
             ReservedLock lock;
 
@@ -147,14 +146,14 @@ public class MetaLockAspect {
                 lock.release();
                 if (lock.isFree()) {
                     namedLocks.remove(lockName);
-                    log.trace(TRACE_FORMAT, unique, "Removed", lockName);
+                    LOG.trace(TRACE_FORMAT, unique, "Removed", lockName);
                 }
             } finally {
                 synchronizer.unlock();
             }
 
             lock.unlock();
-            log.trace(TRACE_FORMAT, unique, "Unlocked", lockName);
+            LOG.trace(TRACE_FORMAT, unique, "Unlocked", lockName);
         }
     }
 
@@ -165,7 +164,7 @@ public class MetaLockAspect {
      * Actually this class itself is not thread-safe, but its methods
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
-    private final static class ReservedLock extends ReentrantLock {
+    private static final class ReservedLock extends ReentrantLock {
         private int count = 0;
 
         void reserve() {
