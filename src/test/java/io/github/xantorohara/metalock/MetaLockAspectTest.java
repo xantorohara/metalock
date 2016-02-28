@@ -149,7 +149,7 @@ public class MetaLockAspectTest {
     @Test
     @Repeat(3)
     public void addMoneyForTheSameUserShouldBeSerial() throws InterruptedException {
-        runConcurrent(0,
+        runConcurrent(100,
                 () -> demoRegistryService.addMoneyForUser("Paul", "Smith", 33),
                 () -> demoRegistryService.addMoneyForUser("Paul", "Smith", 55)
         );
