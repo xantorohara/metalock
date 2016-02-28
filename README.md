@@ -8,8 +8,8 @@ Internally it is based on concurrent maps of ordered reentrant locks.
 
 ## Install
 
-Metalock jars are available at the [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cmetalock)
-via this dependency:
+Metalock jars are available at the 
+[Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cmetalock):
 
 ```xml
 <dependency>
@@ -19,6 +19,32 @@ via this dependency:
 </dependency>
 ```
 
+Snapshots are available at the 
+[Sonatype](https://oss.sonatype.org/content/repositories/snapshots/io/github/xantorohara/metalock/):
+ 
+```xml
+  <repositories>
+        <repository>
+            <id>oss.sonatype.org-snapshot</id>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    ...
+    <dependencies>
+        <dependency>
+            <groupId>io.github.xantorohara</groupId>
+            <artifactId>metalock</artifactId>
+            <version>0.1.2-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+```
+    
 You always free to build it from the sources via this command:
 
 `mvn clean install`
