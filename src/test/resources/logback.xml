@@ -5,7 +5,8 @@
         </encoder>
     </appender>
 
-    <logger name="io.github.xantorohara.metalock" level="DEBUG"/>
+    <!--<logger name="io.github.xantorohara.metalock" level="DEBUG"/>-->
+    <logger name="io.github.xantorohara.metalock" level="TRACE"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

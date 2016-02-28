@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -28,15 +28,17 @@ import java.util.concurrent.locks.ReentrantLock;
 @Aspect
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MetaLockAspect {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static String LOG_FORMAT = "ML{}A {} {}";
+    private final static String DEBUG_FORMAT = "ML{}U {}";
+    private final static String TRACE_FORMAT = "ML{}U {} {}";
+
 
     /**
      * Serial number generator to log Before, After or Error states
      * of the target method invocation
      */
-    private final AtomicInteger serial = new AtomicInteger(1000000);
+    private final AtomicLong serial = new AtomicLong(1000000);
 
     /**
      * Locks storage.
@@ -48,11 +50,14 @@ public class MetaLockAspect {
     @Around("@annotation(io.github.xantorohara.metalock.MetaLock)||" +
             "@annotation(io.github.xantorohara.metalock.MetaLocks)")
     public Object lockAround(ProceedingJoinPoint pjp) throws Throwable {
+        long unique = serial.incrementAndGet();
 
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         Method method = methodSignature.getMethod();
         String methodName = methodSignature.toShortString();
         String[] parameterNames = methodSignature.getParameterNames();
+
+        log.debug(DEBUG_FORMAT, unique, methodName);
 
         MetaLock[] metaLocks;
         if (method.isAnnotationPresent(MetaLocks.class)) {
@@ -81,8 +86,6 @@ public class MetaLockAspect {
             }
         }
 
-        int unique = serial.incrementAndGet();
-
         if (!lockNames.isEmpty()) {
             if (lockNames.size() > 1) {
                 Collections.sort(lockNames);
@@ -91,12 +94,12 @@ public class MetaLockAspect {
         }
 
         try {
-            log.debug(LOG_FORMAT, unique, "Before", methodName);
+            log.debug(DEBUG_FORMAT, unique, "Before");
             Object result = pjp.proceed();
-            log.debug(LOG_FORMAT, unique, "After", methodName);
+            log.debug(DEBUG_FORMAT, unique, "After");
             return result;
         } catch (Throwable e) {
-            log.debug(LOG_FORMAT, unique, "Error", methodName);
+            log.debug(DEBUG_FORMAT, unique, "Error");
             throw e;
         } finally {
             if (!lockNames.isEmpty()) {
@@ -108,9 +111,9 @@ public class MetaLockAspect {
     /**
      * Create or obtain named locks
      */
-    private void lock(List<String> sortedLockNames, int unique) {
+    private void lock(List<String> sortedLockNames, long unique) {
         for (String lockName : sortedLockNames) {
-            log.debug(LOG_FORMAT, unique, "Locking", lockName);
+            log.trace(TRACE_FORMAT, unique, "Locking", lockName);
             ReservedLock lock;
 
             synchronizer.lock();
@@ -122,19 +125,19 @@ public class MetaLockAspect {
             }
 
             lock.lock();
-            log.debug(LOG_FORMAT, unique, "Locked", lockName);
+            log.trace(TRACE_FORMAT, unique, "Locked", lockName);
         }
     }
 
     /**
      * Release sorted named locks in reverse order
      */
-    private void unlock(List<String> sortedLockNames, int unique) {
-        ListIterator<String> iter = sortedLockNames.listIterator(sortedLockNames.size());
+    private void unlock(List<String> sortedLockNames, long unique) {
+        ListIterator<String> iterator = sortedLockNames.listIterator(sortedLockNames.size());
 
-        while (iter.hasPrevious()) {
-            String lockName = iter.previous();
-            log.debug(LOG_FORMAT, unique, "Unlocking", lockName);
+        while (iterator.hasPrevious()) {
+            String lockName = iterator.previous();
+            log.trace(TRACE_FORMAT, unique, "Unlocking", lockName);
 
             ReservedLock lock;
 
@@ -144,14 +147,14 @@ public class MetaLockAspect {
                 lock.release();
                 if (lock.isFree()) {
                     namedLocks.remove(lockName);
-                    log.debug(LOG_FORMAT, unique, "Removed", lockName);
+                    log.trace(TRACE_FORMAT, unique, "Removed", lockName);
                 }
             } finally {
                 synchronizer.unlock();
             }
 
             lock.unlock();
-            log.debug(LOG_FORMAT, unique, "Unlocked", lockName);
+            log.trace(TRACE_FORMAT, unique, "Unlocked", lockName);
         }
     }
 
@@ -163,7 +166,7 @@ public class MetaLockAspect {
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
     private static class ReservedLock extends ReentrantLock {
-        private volatile int count = 0;
+        volatile int count = 0;
 
         void reserve() {
             count++;
@@ -177,7 +180,7 @@ public class MetaLockAspect {
             return count == 0;
         }
 
-        public ReservedLock() {
+        ReservedLock() {
             super(true);
         }
     }

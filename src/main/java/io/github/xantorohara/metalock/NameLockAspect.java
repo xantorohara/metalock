@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -25,15 +25,16 @@ import java.util.concurrent.locks.ReentrantLock;
 @Aspect
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class NameLockAspect {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static String LOG_FORMAT = "NL{}A {} {}";
+    private final static String DEBUG_FORMAT = "NL{}U {}";
+    private final static String TRACE_FORMAT = "NL{}U {} {}";
 
     /**
      * Serial number generator to log Before, After or Error states
      * of the target method invocation
      */
-    private final AtomicInteger serial = new AtomicInteger(1000000);
+    private final AtomicLong serial = new AtomicLong(1000000);
 
     /**
      * Locks storage.
@@ -42,36 +43,30 @@ public class NameLockAspect {
      */
     private final ConcurrentMap<String, ReentrantLock> namedLocks = new ConcurrentHashMap<>();
 
-    /**
-     * Create named lock around method with @NamedLock annotation
-     *
-     * @param pjp
-     * @return
-     * @throws Throwable
-     */
     @Around("@annotation(io.github.xantorohara.metalock.NameLock)")
     public Object lockAround(ProceedingJoinPoint pjp) throws Throwable {
+        long unique = serial.incrementAndGet();
 
         MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
         Method method = methodSignature.getMethod();
         String methodName = methodSignature.toShortString();
+
+        log.debug(DEBUG_FORMAT, unique, methodName);
 
         NameLock nameLockAnnotation = method.getAnnotation(NameLock.class);
         String[] lockNames = nameLockAnnotation.value();
 
         Arrays.sort(lockNames);
 
-        int unique = serial.incrementAndGet();
-
         lock(lockNames, unique);
 
         try {
-            log.debug(LOG_FORMAT, unique, "Before", methodName);
+            log.debug(DEBUG_FORMAT, unique, "Before");
             Object result = pjp.proceed();
-            log.debug(LOG_FORMAT, unique, "After", methodName);
+            log.debug(DEBUG_FORMAT, unique, "After");
             return result;
         } catch (Throwable e) {
-            log.debug(LOG_FORMAT, unique, "Error", methodName);
+            log.debug(DEBUG_FORMAT, unique, "Error");
             throw e;
         } finally {
             unlock(lockNames, unique);
@@ -84,11 +79,11 @@ public class NameLockAspect {
      * @param sortedLockNames - array of names
      * @param unique          - unique invocation number to log
      */
-    private void lock(String[] sortedLockNames, int unique) {
+    private void lock(String[] sortedLockNames, long unique) {
         for (String lockName : sortedLockNames) {
-            log.debug(LOG_FORMAT, unique, "Locking", lockName);
+            log.trace(TRACE_FORMAT, unique, "Locking", lockName);
             namedLocks.computeIfAbsent(lockName, s -> new ReentrantLock(true)).lock();
-            log.debug(LOG_FORMAT, unique, "Locked", lockName);
+            log.trace(TRACE_FORMAT, unique, "Locked", lockName);
         }
     }
 
@@ -98,12 +93,12 @@ public class NameLockAspect {
      * @param sortedLockNames - array of names
      * @param unique          - unique invocation number to log
      */
-    private void unlock(String[] sortedLockNames, int unique) {
+    private void unlock(String[] sortedLockNames, long unique) {
         for (int i = sortedLockNames.length - 1; i >= 0; i--) {
             String lockName = sortedLockNames[i];
-            log.debug(LOG_FORMAT, unique, "Unlocking", lockName);
+            log.trace(TRACE_FORMAT, unique, "Unlocking", lockName);
             namedLocks.get(lockName).unlock();
-            log.debug(LOG_FORMAT, unique, "Unlocked", lockName);
+            log.trace(TRACE_FORMAT, unique, "Unlocked", lockName);
         }
     }
 
