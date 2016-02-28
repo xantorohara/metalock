@@ -166,17 +166,17 @@ public class MetaLockAspect {
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
     private static class ReservedLock extends ReentrantLock {
-        volatile int count = 0;
+        private int count = 0;
 
-        void reserve() {
+        synchronized void reserve() {
             count++;
         }
 
-        void release() {
+        synchronized void release() {
             count--;
         }
 
-        boolean isFree() {
+        synchronized boolean isFree() {
             return count == 0;
         }
 
