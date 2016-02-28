@@ -114,4 +114,17 @@ public class DemoRegistryService {
     public void clearRecords() {
         recordsDummyStorage.clear();
     }
+
+    /**
+     * In our magic demo world users have unique combination of first and last names
+     *
+     * @param firstName
+     * @param lastName
+     */
+    @MetaLock(name = "User", param = {"firstName", "lastName"})
+    public void addMoneyForUser(String firstName, String lastName, int amountOfMoney) {
+        auditor.logAction("Add " + amountOfMoney + " money for " + firstName + " " + lastName);
+        worker.doSomeWork(200);
+        auditor.logAction("Added " + amountOfMoney + " money for " + firstName + " " + lastName);
+    }
 }

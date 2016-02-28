@@ -10,10 +10,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,9 +28,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class MetaLockAspect {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    public final static char SEPARATOR = '§';
+
     private final static String DEBUG_FORMAT = "ML{}U {}";
     private final static String TRACE_FORMAT = "ML{}U {} {}";
-
 
     /**
      * Serial number generator to log Before, After or Error states
@@ -62,37 +60,23 @@ public class MetaLockAspect {
 
         MetaLock[] metaLocks;
         if (method.isAnnotationPresent(MetaLocks.class)) {
-            MetaLocks namedLockAnnotation = method.getAnnotation(MetaLocks.class);
-            metaLocks = namedLockAnnotation.value();
+            MetaLocks metaLocksAnnotation = method.getAnnotation(MetaLocks.class);
+            metaLocks = metaLocksAnnotation.value();
         } else {
             metaLocks = new MetaLock[]{method.getAnnotation(MetaLock.class)};
         }
 
         Object[] args = pjp.getArgs();
 
-        List<String> lockNames = new ArrayList<>(metaLocks.length);
+        String[] lockNames = new String[metaLocks.length];
 
-        for (MetaLock metaLock : metaLocks) {
-            String param = null;
-            for (int j = 0; j < parameterNames.length; j++) {
-                if (parameterNames[j].equals(metaLock.param())) {
-                    if (args[j] != null) {
-                        param = args[j].toString();
-                    }
-                    break;
-                }
-            }
-            if (param != null) {
-                lockNames.add(metaLock.name() + ((char) 0) + param);
-            }
+        for (int i = 0; i < metaLocks.length; i++) {
+            MetaLock metaLock = metaLocks[i];
+            lockNames[i] = getLockName(metaLock.name(), metaLock.param(), parameterNames, args);
         }
 
-        if (!lockNames.isEmpty()) {
-            if (lockNames.size() > 1) {
-                Collections.sort(lockNames);
-            }
-            lock(lockNames, unique);
-        }
+        Arrays.sort(lockNames);
+        lock(lockNames, unique);
 
         try {
             log.debug(DEBUG_FORMAT, unique, "Before");
@@ -103,16 +87,33 @@ public class MetaLockAspect {
             log.debug(DEBUG_FORMAT, unique, "Error");
             throw e;
         } finally {
-            if (!lockNames.isEmpty()) {
-                unlock(lockNames, unique);
+            unlock(lockNames, unique);
+        }
+    }
+
+    static String getLockName(String metaLockName, String[] metalockParam,
+                              String[] methodParameterNames, Object[] methodArgs) {
+        StringBuilder lockName = new StringBuilder(metaLockName);
+        for (int j = 0; j < methodParameterNames.length; j++) {
+            for (String metalockParamName : metalockParam) {
+                if (methodParameterNames[j].equals(metalockParamName)) {
+                    lockName.append(SEPARATOR);
+                    if (methodArgs[j] == null) {
+                        lockName.append("null");
+                    } else {
+                        lockName.append(methodArgs[j].toString());
+                    }
+                    break;
+                }
             }
         }
+        return lockName.toString();
     }
 
     /**
      * Create or obtain named locks
      */
-    private void lock(List<String> sortedLockNames, long unique) {
+    private void lock(String[] sortedLockNames, long unique) {
         for (String lockName : sortedLockNames) {
             log.trace(TRACE_FORMAT, unique, "Locking", lockName);
             ReservedLock lock;
@@ -133,11 +134,10 @@ public class MetaLockAspect {
     /**
      * Release sorted named locks in reverse order
      */
-    private void unlock(List<String> sortedLockNames, long unique) {
-        ListIterator<String> iterator = sortedLockNames.listIterator(sortedLockNames.size());
+    private void unlock(String[] sortedLockNames, long unique) {
+        for (int i = sortedLockNames.length - 1; i >= 0; i--) {
+            String lockName = sortedLockNames[i];
 
-        while (iterator.hasPrevious()) {
-            String lockName = iterator.previous();
             log.trace(TRACE_FORMAT, unique, "Unlocking", lockName);
 
             ReservedLock lock;
@@ -167,7 +167,7 @@ public class MetaLockAspect {
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
     private final static class ReservedLock extends ReentrantLock {
-        private AtomicInteger count = new AtomicInteger();
+        private final AtomicInteger count = new AtomicInteger();
 
         void reserve() {
             count.incrementAndGet();
