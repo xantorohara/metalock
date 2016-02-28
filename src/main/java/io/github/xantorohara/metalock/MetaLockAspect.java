@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -165,19 +166,19 @@ public class MetaLockAspect {
      * Actually this class itself is not thread-safe, but its methods
      * reserve(), release() and isFree() are always called from the thread-safe environment.
      */
-    private static class ReservedLock extends ReentrantLock {
-        private int count = 0;
+    private final static class ReservedLock extends ReentrantLock {
+        private AtomicInteger count = new AtomicInteger();
 
-        synchronized void reserve() {
-            count++;
+        void reserve() {
+            count.incrementAndGet();
         }
 
-        synchronized void release() {
-            count--;
+        void release() {
+            count.decrementAndGet();
         }
 
-        synchronized boolean isFree() {
-            return count == 0;
+        boolean isFree() {
+            return count.get() == 0;
         }
 
         ReservedLock() {
