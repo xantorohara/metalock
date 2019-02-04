@@ -1,4 +1,4 @@
-# Metalock Java library :vertical_traffic_light:
+# Metalock Java library
 
 The library contains Java annotations and aspects that make it possible to synchronise methods in a simple way.
 
