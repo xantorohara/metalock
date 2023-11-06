@@ -1,4 +1,4 @@
-# Metalock Java library :vertical_traffic_light:
+# Metalock Java library
 
 The library contains Java annotations and aspects that make it possible to synchronise methods in a simple way.
 
@@ -81,7 +81,7 @@ public SomeRecord saveRecord(String recordKey, String recordValue) {
 }
 ```
 
-@Metalock supports multiple parameters:
+`@Metalock` supports multiple parameters:
 
 ```java
 @MetaLock(name = "User", param = {"firstName", "lastName"})
@@ -90,7 +90,7 @@ public void addMoneyForUser(String firstName, String lastName, int amountOfMoney
 }
 ```
    
-@Metalock annotation can be repeatable:
+`@Metalock` annotation can be repeatable:
 
 ```java
 @MetaLock(name = "FileSystem", param = "filename")
